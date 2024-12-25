@@ -76,6 +76,25 @@ async function run() {
       res.send(result);
     });
 
+    // *get query for a specific email for my query page
+
+    app.get("/my-queries/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { questionerEmail: email };
+      const result = await queryCollections.find(query).toArray();
+      res.send(result);
+    });
+
+    // *get recommendations for a specific query id for a specific query for querydetails page
+
+    app.get('/recommandations-for-a-query',async(req,res)=>{
+      const id=req.query.id;
+      console.log("recc---->",id)
+      const query={queryId: id}
+      const result=await recommendationCollection.find(query).toArray()
+      res.send(result)
+    })
+
     //*adding query to db
 
     app.post("/add-query", async (req, res) => {
@@ -94,7 +113,9 @@ async function run() {
       const alreadyExist = await recommendationCollection.findOne(query);
       console.log(alreadyExist);
       if (alreadyExist) {
-        return res.status(400).send("You have already recommended for this product");
+        return res
+          .status(400)
+          .send("You have already recommended for this product");
       }
 
       // inserting recommendation information
