@@ -3,7 +3,7 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // cors
 const corsOption = {
@@ -44,6 +44,9 @@ async function run() {
     const queryCollections = client
       .db("suggestify-db")
       .collection("query-collection");
+    const recommendationCollection = client
+      .db("suggestify-db")
+      .collection("recommendation-collection");
     // *getting all query
 
     app.get("/all-queries", async (req, res) => {
@@ -55,7 +58,7 @@ async function run() {
 
     app.get("/queries-for-all-query-page", async (req, res) => {
       const search = req.query.search;
-      console.log('Search Query:', search);
+
       const query = {
         productName: { $regex: search, $options: "i" },
       };
@@ -64,11 +67,49 @@ async function run() {
       console.log(search);
     });
 
+    // *get query for a spesific ID for query details page
+
+    app.get("/query-details/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await queryCollections.find(query).toArray();
+      res.send(result);
+    });
+
     //*adding query to db
 
     app.post("/add-query", async (req, res) => {
       const newQuery = req.body;
       const result = await queryCollections.insertOne(newQuery);
+      res.send(result);
+    });
+    //* posting reccomendation data
+    app.post("/add-recommendation", async (req, res) => {
+      const newRecommendation = req.body;
+      // checking if user already recommended for this spesific query
+      const query = {
+        recommendarEmail: newRecommendation.recommendarEmail,
+        queryId: newRecommendation.queryId,
+      };
+      const alreadyExist = await recommendationCollection.findOne(query);
+      console.log(alreadyExist);
+      if (alreadyExist) {
+        return res.status(400).send("You have already recommended for this product");
+      }
+
+      // inserting recommendation information
+      const result = await recommendationCollection.insertOne(
+        newRecommendation
+      );
+      // Increasing query count
+      const filter = { _id: new ObjectId(newRecommendation.queryId) };
+      const updatedDoc = {
+        $inc: { recommendationCount: 1 },
+      };
+      const updatedRecommendationCount = await queryCollections.updateOne(
+        filter,
+        updatedDoc
+      );
       res.send(result);
     });
   } finally {
