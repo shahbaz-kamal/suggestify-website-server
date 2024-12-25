@@ -46,9 +46,22 @@ async function run() {
       .collection("query-collection");
     // *getting all query
 
-    app.get("/all-query", async (req, res) => {
+    app.get("/all-queries", async (req, res) => {
       const result = await queryCollections.find().toArray();
       res.send(result);
+    });
+
+    //  *handling search functionality
+
+    app.get("/queries-for-all-query-page", async (req, res) => {
+      const search = req.query.search;
+      console.log('Search Query:', search);
+      const query = {
+        productName: { $regex: search, $options: "i" },
+      };
+      const result = await queryCollections.find(query).toArray();
+      res.send(result);
+      console.log(search);
     });
 
     //*adding query to db
