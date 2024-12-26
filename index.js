@@ -75,7 +75,7 @@ async function run() {
       const result = await queryCollections.find(query).toArray();
       res.send(result);
     });
-    // *get query for a spesific ID for updating query 
+    // *get query for a spesific ID for updating query
 
     app.get("/update-query", async (req, res) => {
       const id = req.query.id;
@@ -95,13 +95,13 @@ async function run() {
 
     // *get recommendations for a specific query id for a specific query for querydetails page
 
-    app.get('/recommandations-for-a-query',async(req,res)=>{
-      const id=req.query.id;
-      console.log("recc---->",id)
-      const query={queryId: id}
-      const result=await recommendationCollection.find(query).toArray()
-      res.send(result)
-    })
+    app.get("/recommandations-for-a-query", async (req, res) => {
+      const id = req.query.id;
+      console.log("recc---->", id);
+      const query = { queryId: id };
+      const result = await recommendationCollection.find(query).toArray();
+      res.send(result);
+    });
 
     //*adding query to db
 
@@ -141,25 +141,32 @@ async function run() {
       );
       res.send(result);
     });
-// *updating query
+    // *updating query
 
-app.patch('/update-query',async(req,res)=>{
-  const id=req.body.id;
-const filter={_id: new ObjectId(id)}
-const updatedDoc={
-  $set:{
-    productName:req.body.productName,
-    productBrand:req.body.productBrand,
-    productImage:req.body.productImage,
-    queryTitle:req.body.queryTitle,
-    boycottingReason:req.body.boycottingReason,
+    app.patch("/update-query", async (req, res) => {
+      const id = req.body.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          productName: req.body.productName,
+          productBrand: req.body.productBrand,
+          productImage: req.body.productImage,
+          queryTitle: req.body.queryTitle,
+          boycottingReason: req.body.boycottingReason,
+        },
+      };
+      const result = await queryCollections.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+    // *deleting query
 
-  }
-}
-const result=await queryCollections.updateOne(filter,updatedDoc);
-res.send(result)
-})
-
+    app.delete("/delete-query", async (req, res) => {
+      const id = req.query.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await queryCollections.deleteOne(query);
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
