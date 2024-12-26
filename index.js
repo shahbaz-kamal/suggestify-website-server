@@ -147,7 +147,7 @@ async function run() {
       const id = req.query.id;
       const queryId = req.query.queryId;
       console.log(id, queryId);
-      console.log(req)
+      console.log(req);
       const query = { _id: new ObjectId(id) };
       const filter = { _id: new ObjectId(queryId) };
       const updated = {
@@ -191,6 +191,15 @@ async function run() {
       const email = req.query.email;
       console.log(email);
       const query = { recommendarEmail: email };
+      const result = await recommendationCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // *getting recommendation for me
+
+    app.get("/recommendations-for-me/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { questionerEmail: email };
       const result = await recommendationCollection.find(query).toArray();
       res.send(result);
     });
