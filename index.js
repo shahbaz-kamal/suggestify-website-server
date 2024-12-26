@@ -141,6 +141,24 @@ async function run() {
       );
       res.send(result);
     });
+
+    // *deleting recommandation
+    app.delete("/my-recommendation", async (req, res) => {
+      const id = req.query.id;
+      const queryId = req.query.queryId;
+      console.log(id, queryId);
+      console.log(req)
+      const query = { _id: new ObjectId(id) };
+      const filter = { _id: new ObjectId(queryId) };
+      const updated = {
+        $inc: { recommendationCount: -1 },
+      };
+      await queryCollections.updateOne(filter, updated);
+
+      const result = await recommendationCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // *updating query
 
     app.patch("/update-query", async (req, res) => {
@@ -165,6 +183,15 @@ async function run() {
       console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await queryCollections.deleteOne(query);
+      res.send(result);
+    });
+    // *getting data for my recommendation page
+
+    app.get("/my-recommendation", async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      const query = { recommendarEmail: email };
+      const result = await recommendationCollection.find(query).toArray();
       res.send(result);
     });
   } finally {
