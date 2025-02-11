@@ -9,7 +9,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const corsOption = {
   origin: ["http://localhost:5173"],
   credentials: true,
-  optionalSUccessStatus: 200,
+  optionalSuccessStatus: 200,
 };
 app.use(cors(corsOption));
 app.use(express.json());
