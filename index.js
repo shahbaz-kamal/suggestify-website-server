@@ -47,6 +47,21 @@ async function run() {
     const recommendationCollection = client
       .db("suggestify-db")
       .collection("recommendation-collection");
+    const userCollection = client
+      .db("suggestify-db")
+      .collection("user-collection");
+
+    // *users related api
+    app.post("/google-user", async (req, res) => {
+      const newUser = req.body;
+      const query = { email: newUser.email };
+      const isExist = await userCollection.findOne(query);
+      if (!isExist) {
+        const result = await userCollection.insertOne(newUser);
+        res.send(result);
+      } else res.send({ message: "users already Exist" });
+    });
+
     // *getting all query
 
     app.get("/all-queries", async (req, res) => {
